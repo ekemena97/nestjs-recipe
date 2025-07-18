@@ -29,10 +29,15 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Set up Python (for AWS CLI)
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
       - name: Install AWS CLI
         run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli
+          python -m pip install --upgrade pip
+          pip install awscli
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -50,7 +55,7 @@ jobs:
       - name: Zip Lambda package
         run: zip -r function.zip dist node_modules package.json
 
-      - name: Update Lambda function code
+      - name: Deploy to AWS Lambda
         run: |
           aws lambda update-function-code \
             --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
