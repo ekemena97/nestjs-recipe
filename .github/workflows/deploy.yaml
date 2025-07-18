@@ -1,4 +1,4 @@
-name: Deploy Lambda Function
+name: Deploy NestJS Lambda from S3
 
 on:
   push:
@@ -8,6 +8,8 @@ on:
 env:
   AWS_REGION: us-east-1
   LAMBDA_FUNCTION_NAME: normal
+  S3_BUCKET: ekemsss
+  S3_KEY: function.zip
 
 permissions:
   contents: read
@@ -51,10 +53,17 @@ jobs:
         run: npm run build
 
       - name: Zip Lambda package
-        run: zip -r function.zip dist node_modules package.json
+        run: |
+          zip -r function.zip dist node_modules package.json -x "*.test.*" "*.spec.*" "*.env"
 
-      - name: Deploy to AWS Lambda
+      - name: Upload ZIP to S3
+        run: |
+          aws s3 cp function.zip s3://${{ env.S3_BUCKET }}/${{ env.S3_KEY }}
+
+      - name: Deploy Lambda from S3
         run: |
           aws lambda update-function-code \
             --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-            --zip-file fileb://function.zip
+            --s3-bucket ${{ env.S3_BUCKET }} \
+            --s3-key ${{ env.S3_KEY }}
+
