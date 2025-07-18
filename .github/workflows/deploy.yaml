@@ -8,10 +8,8 @@ on:
 env:
   AWS_REGION: us-east-1
   LAMBDA_FUNCTION_NAME: normal
-  AWS_ROLE_TO_ASSUME: arn:aws:iam::140023404662:role/normal-role-efqu9sk5
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
@@ -42,8 +40,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
-          role-session-name: GitHubActionsLambdaDeployment
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Install dependencies
